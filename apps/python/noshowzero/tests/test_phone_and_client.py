@@ -157,12 +157,13 @@ def test_polling_times_out_without_redialing(reminder_call):
     assert all(r.method == "GET" for r in rec.requests)
 
 
-def test_api_errors_carry_code_not_body(clinic, appointment, monkeypatch):
+def test_api_errors_carry_http_status_not_provider_body(clinic, appointment, monkeypatch):
     monkeypatch.setenv("NOSHOWZERO_ALLOWED_DESTINATIONS", "+12125550116")
     rec = Recorder([httpx.Response(400, json={"error": {"code": "invalid_phone", "message": "phone must be an E.164 number."}})])
     with pytest.raises(client_mod.CalleAPIError) as exc:
         place_reminder_call(clinic, appointment, "24h", client=_client(rec))
-    assert exc.value.status == 400 and exc.value.code == "invalid_phone"
+    assert exc.value.status == 400 and exc.value.code == "http_400"
+    assert "phone must be an E.164 number" not in str(exc.value)
 
 
 def test_missing_key_is_an_error():

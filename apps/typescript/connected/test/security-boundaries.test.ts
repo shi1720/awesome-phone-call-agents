@@ -67,7 +67,8 @@ test('all credentialed CALL-E clients are pinned to the official HTTPS origin', 
   }
 })
 
-test('scheduling cancels any queued cadence label before publishing one replacement', async () => {
+test('scheduling cancels any queued cadence label before publishing one replacement', async (t) => {
+  t.mock.method(Date, 'now', () => Date.parse('2026-08-17T12:00:00Z'))
   const previous = { qstash: process.env.QSTASH_TOKEN, dispatch: process.env.CONNECTED_DISPATCH_TOKEN, url: process.env.CONNECTED_PUBLIC_URL }
   process.env.QSTASH_TOKEN = 'qstash-test-token'
   process.env.CONNECTED_DISPATCH_TOKEN = 'dispatch-test-token'

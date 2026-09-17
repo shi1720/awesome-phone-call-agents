@@ -47,7 +47,8 @@ multi-candidate backfill waterfall — is exercisable offline.
 
 ```bash
 cd apps/typescript/ai-front-desk
-npm install
+npm ci
+npm --prefix web ci
 cp .env.example .env
 # set ADMIN_API_KEY in .env — e.g. `openssl rand -hex 32` — every /api route requires it
 npm run db:migrate     # creates dev.db and seeds Riverside Dental Clinic

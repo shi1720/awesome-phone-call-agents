@@ -507,7 +507,7 @@ character.</summary>
 OFFLINE. No telephone call will be placed and no CALL-E account is needed.
 The CALL-E SDK is running: this is a real calle.CalleClient with the local double
 mounted on its transport, so every request and every error is CALL-E's own code.
-7 row(s) from examples\absences.csv, concurrency 3.
+7 row(s) from examples/absences.csv, concurrency 3.
 
   [ok   ] S-1041       schema-valid answer received
   [ok   ] S-1042       schema-valid answer received
@@ -1376,9 +1376,9 @@ is a thing you can describe well enough to be refused.
 
 ## When this was built
 
-Newly created. The first commit in this directory is `b668ac0`, 2026-09-04, and every
-line below it was written after that. No pre-existing project was renamed, forked or
-resubmitted, and nothing here was carried in from earlier work of mine.
+Imported reference. The first commit in this directory is `97aac06`, 2026-09-14.
+This date records the import into this repository, not the original authoring date.
+The original implementation and its attribution are preserved in the imported history.
 
 ```bash
 git log --reverse --format='%h %ad %s' --date=short -- :/apps/python/firstbell | head -1

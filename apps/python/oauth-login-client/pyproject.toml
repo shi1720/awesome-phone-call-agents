@@ -5,7 +5,7 @@ description = "Minimal standard MCP OAuth client app for CALL-E."
 requires-python = ">=3.10"
 dependencies = [
   "httpx>=0.28.1",
-  "mcp>=1.27.0",
+  "mcp>=1.27.0,<2",
 ]
 
 [dependency-groups]

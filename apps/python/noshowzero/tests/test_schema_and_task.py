@@ -59,5 +59,5 @@ def test_offer_task(clinic, waitlist):
     task = build_offer_task(clinic, waitlist[3], "2026-09-11T20:30:00Z", "Dental Cleaning")
     assert "waitlist" in task and "4:30 PM on Friday, September 11" in task
     assert "never pressure the patient" in task
-    assert "Do not promise a text or email" in task
+    assert "Do not say it is booked or promise a text or email" in task
     assert "5550199" not in task
