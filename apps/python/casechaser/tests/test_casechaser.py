@@ -150,7 +150,12 @@ def test_offer_stops_at_a_human_and_decision_is_carried_forward(ledger, fake):
     assert c["status"] == "open" and "Decline the credit" in build_task(c)
 
 
-def test_resolved_closes_the_case_and_keeps_commitments(ledger, fake):
+def test_resolved_closes_the_case_and_keeps_commitments(ledger, fake, monkeypatch):
+    # The fixture promises a September delivery; resolve it before it becomes overdue.
+    from unittest.mock import Mock
+    clock = Mock(wraps=datetime)
+    clock.now.return_value = BUSINESS_TUESDAY
+    monkeypatch.setattr(engine, "datetime", clock)
     case = make_case(); ledger.upsert(case)
     run(ledger, case, "first_call_commitment", fake)
     run(ledger, case, "resolved", fake)

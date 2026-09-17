@@ -245,13 +245,22 @@ describe("Twilio callback HTTP runtime", () => {
   );
 
   it("forces active HTTP connections closed when the configured close deadline expires", async () => {
+    const entered = Promise.withResolvers<void>();
+    const release = Promise.withResolvers<void>();
     const runtime = await startTwilioCallbackHttpRuntime({
       host: "127.0.0.1",
       port: 0,
       publicBaseUrl: "https://simulator.invalid",
       maxBodyBytes: 256,
       closeTimeoutMs: 25,
-      controller: { voice: vi.fn(), canary: vi.fn() },
+      controller: {
+        voice: vi.fn(async () => {
+          entered.resolve();
+          await release.promise;
+          return { statusCode: 200, contentType: "application/xml", body: "<Response/>" };
+        }),
+        canary: vi.fn(),
+      },
       establishTraceContext: () => ({
         traceparent: "00-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-bbbbbbbbbbbbbbbb-01",
       }),
@@ -262,16 +271,27 @@ describe("Twilio callback HTTP runtime", () => {
       socket.once("connect", resolve);
       socket.once("error", reject);
     });
-    socket.write("POST /twilio/voice HTTP/1.1\r\nHost: localhost\r\nContent-Length: 100\r\n");
+    socket.resume();
     const socketClosed = new Promise<void>((resolve) => socket.once("close", () => resolve()));
-
-    vi.useFakeTimers();
-    const closeExpectation = expect(runtime.close()).rejects.toThrowError(
-      /^Twilio callback HTTP shutdown timed out$/u,
-    );
-    await vi.advanceTimersByTimeAsync(25);
-
-    await closeExpectation;
-    await socketClosed;
+    try {
+      socket.write(
+        "POST /twilio/voice HTTP/1.1\r\nHost: localhost\r\nContent-Type: application/x-www-form-urlencoded\r\nX-Twilio-Signature: test-signature\r\nContent-Length: 3\r\n\r\na=b",
+      );
+      // A connected socket can still be idle. Wait until the server is actually
+      // handling the request before checking the active-request shutdown deadline.
+      await entered.promise;
+      vi.useFakeTimers();
+      const closeExpectation = expect(runtime.close()).rejects.toThrowError(
+        /^Twilio callback HTTP shutdown timed out$/u,
+      );
+      await vi.advanceTimersByTimeAsync(25);
+      await closeExpectation;
+      await socketClosed;
+    } finally {
+      release.resolve();
+      socket.destroy();
+      vi.useRealTimers();
+      await runtime.close().catch(() => {});
+    }
   });
 });

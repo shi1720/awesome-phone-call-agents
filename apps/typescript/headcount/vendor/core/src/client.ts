@@ -13,11 +13,11 @@ export const DEFAULT_SIM_URL = "http://localhost:4000";
 
 export type CalleMode = "sim" | "live";
 
-export function resolveCalleMode(env: NodeJS.ProcessEnv = process.env): CalleMode {
+export function resolveCalleMode(env: Readonly<Record<string, string | undefined>> = process.env): CalleMode {
   return env.CALLE_LIVE === "1" ? "live" : "sim";
 }
 
-export function resolveCalleBaseUrl(env: NodeJS.ProcessEnv = process.env): string {
+export function resolveCalleBaseUrl(env: Readonly<Record<string, string | undefined>> = process.env): string {
   return approvedBaseUrl(env.CALLE_BASE_URL ?? (resolveCalleMode(env) === "live" ? LIVE_API_URL : DEFAULT_SIM_URL), resolveCalleMode(env));
 }
 
@@ -33,7 +33,7 @@ function approvedBaseUrl(value: string, mode: CalleMode): string {
 
 export function createCalleClient(
   options: { apiKey?: string; baseUrl?: string } = {},
-  env: NodeJS.ProcessEnv = process.env,
+  env: Readonly<Record<string, string | undefined>> = process.env,
 ): CalleClient {
   const mode = resolveCalleMode(env);
   const baseUrl = approvedBaseUrl(options.baseUrl ?? resolveCalleBaseUrl(env), mode);

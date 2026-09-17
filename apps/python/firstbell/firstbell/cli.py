@@ -655,14 +655,14 @@ def main(argv: list[str] | None = None) -> int:
         source = DropSource(args.work_drop, max_age_hours=args.drop_max_age_hours,
                             consent_register=register, column_map=column_map)
         try:
-            came_from = str(source.newest())
+            came_from = source.newest().as_posix()
         except SourceError as err:
             print(f"Could not read the work file: {err}", file=sys.stderr)
             return 2
     else:
         source = CsvSource(args.work_file, consent_register=register,
                            column_map=column_map)
-        came_from = str(args.work_file)
+        came_from = args.work_file.as_posix()
     try:
         items = list(source.items())
     except SourceError as err:

@@ -481,8 +481,8 @@ class DispatchReport:
             keys = ", ".join(f"{r.item.id} under {r.possibly_placed_key}"
                              for r in self.placed_without_id)
             line += (f" | {len(self.placed_without_id)} request(s) may have been placed "
-                     f"and returned no id: {keys}. Re-run the same command today to replay "
-                     f"them under those keys rather than call again")
+                     f"and returned no id: {keys}. Reconcile these request keys with the "
+                     f"provider before any retry; do not submit another call automatically")
         if self.fatal_error:
             line += f" | run stopped: {self.fatal_error}"
         return line

@@ -17,7 +17,7 @@
     "test": "corepack pnpm run test:unit && corepack pnpm run test:e2e",
     "test:browser": "playwright test",
     "test:e2e": "vitest run tests/e2e --config vitest.workspace.ts",
-    "test:unit": "vitest run --config vitest.workspace.ts --exclude tests/e2e/**",
+    "test:unit": "vitest run --config vitest.workspace.ts --exclude \"tests/e2e/**\"",
     "prisma:generate": "node tools/toolchain/run-prisma-tooling.mjs generate",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:validate": "node tools/toolchain/run-prisma-tooling.mjs validate",

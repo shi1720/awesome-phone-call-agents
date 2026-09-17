@@ -569,7 +569,7 @@ class WaveDispatcher:
                     item=item, resolution=Resolution.UNDETERMINED,
                     possibly_placed_key=key,
                     reason="the call may have been placed and the service did not "
-                           "answer; automatic submission stopped, reconcile before "
+                           f"answer; request key {key}; automatic submission stopped, reconcile before "
                            "any retry: " + last)
         # Unreachable while every branch above returns, and routed through `_verdict`
         # anyway. A loop that falls out of its own bottom is a loop somebody has edited,

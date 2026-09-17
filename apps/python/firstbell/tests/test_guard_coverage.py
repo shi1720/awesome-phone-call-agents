@@ -537,7 +537,8 @@ def test_a_cancel_during_a_create_backoff_does_not_say_nothing_was_dispatched():
         f"{result.resolution.value} with the reason {result.reason!r}, which states that "
         "nothing was dispatched")
     assert result.resolution is Resolution.UNDETERMINED, result.resolution
-    assert "may already have been placed" in result.reason, result.reason
+    assert "may have been placed" in result.reason, result.reason
+    assert "reconcile before any retry" in result.reason, result.reason
     assert "S-8" in result.reason, (
         "the reason has to carry the idempotency key, because a request with no call id "
         "cannot enter not_recallable and the key is the only handle for reconciling it")
@@ -595,7 +596,7 @@ def test_a_request_that_may_have_landed_without_an_id_reaches_the_summary_line()
     assert "attendance:S-9:2026-09-08" in line, (
         f"the summary names no key, so a reader has nothing to replay: {line}")
     assert "S-9" in line, f"the summary names no item, so nobody can act on it: {line}"
-    assert "0 already in flight and not recallable" in line, (
-        "the cancelled clause is still expected to print its own zero, honestly, because "
-        "no call with an id was in flight. What must not happen is that being the only "
-        f"thing the line says: {line}")
+    # Submission now stops at the first timeout, before the backoff seam can cancel.
+    assert not report.cancelled
+    assert "Reconcile these request keys" in line, line
+    assert "do not submit another call automatically" in line, line

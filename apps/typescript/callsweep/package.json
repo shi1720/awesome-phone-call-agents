@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "bun run src/index.ts",
-    "build": "bun build src/index.ts --outfile callsweep",
+    "build": "bun build src/index.ts --target bun --outfile callsweep",
     "start": "bun callsweep"
   },
   "devDependencies": {

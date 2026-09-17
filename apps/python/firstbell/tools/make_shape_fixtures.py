@@ -174,7 +174,8 @@ def main() -> int:
                 continue
             # newline="" so a line-ending change is a difference rather than being hidden by
             # universal newlines. These files are declared eol=lf in .gitattributes.
-            on_disk = path.read_text(encoding="utf-8", newline="")
+            with path.open("r", encoding="utf-8", newline="") as handle:
+                on_disk = handle.read()
             if on_disk != text:
                 problems.append(f"{name} differs from what the generator produces")
         stray = sorted(p.name for p in DATA.glob("shape-*.json")
@@ -189,7 +190,10 @@ def main() -> int:
     DATA.mkdir(parents=True, exist_ok=True)
     for name, text in generated.items():
         path = DATA / name
-        before = path.read_text(encoding="utf-8", newline="") if path.exists() else None
+        before = None
+        if path.exists():
+            with path.open("r", encoding="utf-8", newline="") as handle:
+                before = handle.read()
         if before == text:
             print(f"  unchanged  {name}")
             continue

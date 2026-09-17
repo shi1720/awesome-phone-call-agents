@@ -7,9 +7,9 @@ because a reader should be able to check that claim rather than take it.
 
 ## Runtime dependencies
 
-`requirements.txt` names two packages. Installing those two pulls in six more, and this
+`requirements.in` names two direct packages; `requirements.txt` pins their runtime closure. This
 table is the whole closure rather than the part that was typed by hand. Every version and
-every licence below was read from the installed distribution's own metadata on 2026-09-09,
+every licence below was read from the installed distribution's own metadata on 2026-09-17,
 not from memory and not from a package page.
 
 | Package | Version | Required by | Licence | Read from |
@@ -17,17 +17,19 @@ not from memory and not from a package page.
 | `calle-ai` | 0.7.0 | `requirements.txt` | **None declared** | See the note below. This is not an omission on our part. |
 | `attrs` | 26.1.0 | `calle-ai` | MIT | `License-Expression` in the installed metadata |
 | `httpx` | 0.28.1 | `requirements.txt`, and `calle-ai` | BSD-3-Clause | `License` in the installed metadata |
-| `anyio` | 4.14.1 | `httpx` | MIT | `License-Expression` |
-| `certifi` | 2026.1.4 | `httpx`, `httpcore` | MPL-2.0 | `License` plus an OSI classifier |
+| `anyio` | 4.15.1 | `httpx` | MIT | `License-Expression` |
+| `certifi` | 2026.7.22 | `httpx`, `httpcore` | MPL-2.0 | `License` plus an OSI classifier |
 | `httpcore` | 1.0.9 | `httpx` | BSD-3-Clause | `License-Expression` plus an OSI classifier |
 | `h11` | 0.16.0 | `httpcore` | MIT | `License` plus an OSI classifier |
-| `idna` | 3.11 | `httpx`, `anyio` | BSD-3-Clause | `License-Expression` |
+| `idna` | 3.19 | `httpx`, `anyio` | BSD-3-Clause | `License-Expression` |
+| `typing-extensions` | 4.16.0 | `anyio` on Python <3.15 | PSF-2.0 | `License-Expression` |
+| `exceptiongroup` | 1.3.1 | `anyio` on Python <3.11 | MIT | Published wheel metadata |
 
-Two more arrive on older interpreters, because `anyio` asks for them by marker. This
-project supports Python 3.10 and up, so both are reachable and both are listed rather than
-left out for not being installed on the machine that wrote this file. Their licences were
-read from the published wheels on 2026-09-09: `typing_extensions` 4.16.0 (PSF-2.0) on
-Python below 3.13, and `exceptiongroup` 1.3.1 (MIT) on Python below 3.11.
+`typing-extensions` is selected by `anyio` on Python below 3.15. The CALL-E SDK
+requires Python 3.11 or newer. `exceptiongroup` is listed for historical context;
+it is not required by the supported runtime closure. Their wheel metadata was
+previously checked on 2026-09-09. Runtime versions are now pinned so this snapshot
+can be reproduced rather than drifting on each installation.
 
 `certifi` is the one that is not permissive. MPL-2.0 is file-level copyleft: it asks that
 modifications to certifi's own files be published under the same licence, and it says
