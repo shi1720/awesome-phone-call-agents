@@ -1,0 +1,105 @@
+name: Nested app regressions
+
+on:
+  pull_request:
+    paths: ['apps/**', '.github/workflows/nested-app-regressions.yml']
+  push:
+    branches: [main]
+    paths: ['apps/**', '.github/workflows/nested-app-regressions.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - path: apps/python/mobilize
+            install: python -m pip install -e '.[dev]'
+          - path: apps/web/callproof/call_analyzer
+            install: python -m pip install -e '.[dev]'
+          - path: apps/web/veyra/engine
+            install: python -m pip install -r requirements.txt
+    defaults:
+      run:
+        working-directory: ${{ matrix.path }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: ${{ matrix.install }}
+      - run: python -m pytest -q
+
+  veyra-web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/web/veyra/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: corepack enable
+      - run: corepack pnpm install --frozen-lockfile
+      - run: corepack pnpm test
+      - run: corepack pnpm build
+
+  no-show-killer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: apps/web/no-show-killer/backend
+    env:
+      DRY_RUN: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npm test
+
+  callproof-rails:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: callproof
+          POSTGRES_PASSWORD: local-test-only
+          POSTGRES_DB: callproof_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd="pg_isready -U callproof -d callproof_test"
+          --health-interval=5s --health-timeout=5s --health-retries=10
+    defaults:
+      run:
+        working-directory: apps/web/callproof/rails
+    env:
+      RAILS_ENV: test
+      PGHOST: 127.0.0.1
+      PGUSER: callproof
+      PGPASSWORD: local-test-only
+      AGENTKIT_LLM_ADAPTER: fake
+      CALLPROOF_CALL_PROVIDER: fake
+      CALLPROOF_ANALYZER_ADAPTER: fake
+      CALLPROOF_LIVE_CALLS: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libpq-dev libvips
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4.1'
+          working-directory: apps/web/callproof/rails
+          bundler-cache: true
+      - run: bin/rails db:test:prepare test
