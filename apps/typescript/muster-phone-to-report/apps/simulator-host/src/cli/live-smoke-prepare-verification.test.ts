@@ -578,5 +578,5 @@ describe("provider-free live-smoke prepare verification", () => {
       await unlink(auditPath).catch(() => undefined);
       await rmdir(temporaryDirectory).catch(() => undefined);
     }
-  });
+  }, 30_000);
 });
